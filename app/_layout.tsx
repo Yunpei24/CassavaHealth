@@ -27,6 +27,11 @@ export default function RootLayout() {
       setIsI18nInitialized(true);
     }
   }, []);
+
+  if (!isI18nInitialized) {
+    return <Text>Loading...</Text>;
+  }
+
   return (
     <>
       <Stack screenOptions={{ headerShown: false }}>
@@ -35,8 +40,3 @@ export default function RootLayout() {
       <StatusBar style="auto" />
     </>
   );
-}
-
-  if (!isI18nInitialized) {
-    return <Text>Loading...</Text>;
-  }
