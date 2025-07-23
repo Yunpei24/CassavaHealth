@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { View, Text, StyleSheet, TouchableOpacity, Alert, Image, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
@@ -7,6 +8,7 @@ import { Camera, RotateCcw, Image as ImageIcon, X, Check } from 'lucide-react-na
 import Animated, { FadeIn, SlideInUp } from 'react-native-reanimated';
 
 export default function CameraScreen() {
+  const { t } = useTranslation();
   const [facing, setFacing] = useState<CameraType>('back');
   const [permission, requestPermission] = useCameraPermissions();
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
@@ -23,12 +25,12 @@ export default function CameraScreen() {
       <SafeAreaView style={styles.container}>
         <View style={styles.permissionContainer}>
           <Camera size={80} color="#2D5016" />
-          <Text style={styles.permissionTitle}>Accès à la caméra requis</Text>
+          <Text style={styles.permissionTitle}>{t('camera.permissionTitle')}</Text>
           <Text style={styles.permissionMessage}>
-            Nous avons besoin d'accéder à votre caméra pour analyser les feuilles de cassava
+            {t('camera.permissionMessage')}
           </Text>
           <TouchableOpacity style={styles.permissionButton} onPress={requestPermission}>
-            <Text style={styles.permissionButtonText}>Autoriser l'accès</Text>
+            <Text style={styles.permissionButtonText}>{t('camera.grantPermission')}</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -44,7 +46,7 @@ export default function CameraScreen() {
         });
         setCapturedImage(photo.uri);
       } catch (error) {
-        Alert.alert('Erreur', 'Impossible de prendre la photo');
+        Alert.alert(t('common.error'), t('camera.errorTakingPhoto'));
       }
     }
   };
@@ -76,20 +78,20 @@ export default function CameraScreen() {
       
       // Résultat simulé - remplacez par votre vraie logique d'API
       const mockResult = {
-        disease: 'Cassava Mosaic Disease',
+        disease: t('diseases.cassavaMosaicDisease'),
         confidence: 0.92,
-        severity: 'Modérée',
-        treatment: 'Utiliser des plants résistants, éliminer les plants infectés',
+        severity: t('diseases.severity.moderate'),
+        treatment: t('diseases.treatments.cassavaMosaicDisease'),
         recommendations: [
-          'Isoler les plants infectés',
-          'Appliquer un traitement préventif',
-          'Surveiller régulièrement'
+          t('diseases.recommendations.isolate'),
+          t('diseases.recommendations.preventiveTreatment'),
+          t('diseases.recommendations.regularMonitoring')
         ]
       };
       
       setAnalysisResult(mockResult);
     } catch (error) {
-      Alert.alert('Erreur', 'Impossible d\'analyser l\'image');
+      Alert.alert(t('common.error'), t('camera.errorAnalyzing'));
     } finally {
       setIsAnalyzing(false);
     }
@@ -112,7 +114,7 @@ export default function CameraScreen() {
             <TouchableOpacity onPress={resetCamera} style={styles.backButton}>
               <X size={24} color="#2D5016" />
             </TouchableOpacity>
-            <Text style={styles.resultTitle}>Résultat de l'Analyse</Text>
+            <Text style={styles.resultTitle}>{t('camera.analysisResult')}</Text>
           </View>
 
           <Image source={{ uri: capturedImage! }} style={styles.resultImage} />
@@ -122,25 +124,25 @@ export default function CameraScreen() {
               <Text style={styles.diseaseName}>{analysisResult.disease}</Text>
               <View style={styles.confidenceContainer}>
                 <Text style={styles.confidenceText}>
-                  Confiance: {Math.round(analysisResult.confidence * 100)}%
+                  {t('camera.confidence')}: {Math.round(analysisResult.confidence * 100)}%
                 </Text>
                 <Text style={[styles.severityText, 
-                  analysisResult.severity === 'Élevée' ? styles.severityHigh :
-                  analysisResult.severity === 'Modérée' ? styles.severityMedium :
+                  analysisResult.severity === t('diseases.severity.high') ? styles.severityHigh :
+                  analysisResult.severity === t('diseases.severity.moderate') ? styles.severityMedium :
                   styles.severityLow
                 ]}>
-                  Sévérité: {analysisResult.severity}
+                  {t('camera.severity')}: {analysisResult.severity}
                 </Text>
               </View>
             </View>
 
             <View style={styles.treatmentSection}>
-              <Text style={styles.sectionTitle}>Traitement Recommandé</Text>
+              <Text style={styles.sectionTitle}>{t('camera.recommendedTreatment')}</Text>
               <Text style={styles.treatmentText}>{analysisResult.treatment}</Text>
             </View>
 
             <View style={styles.recommendationsSection}>
-              <Text style={styles.sectionTitle}>Recommandations</Text>
+              <Text style={styles.sectionTitle}>{t('camera.recommendations')}</Text>
               {analysisResult.recommendations.map((rec: string, index: number) => (
                 <View key={index} style={styles.recommendationItem}>
                   <Check size={16} color="#1F7A1F" />
@@ -151,7 +153,7 @@ export default function CameraScreen() {
           </View>
 
           <TouchableOpacity style={styles.newAnalysisButton} onPress={resetCamera}>
-            <Text style={styles.newAnalysisButtonText}>Nouvelle Analyse</Text>
+            <Text style={styles.newAnalysisButtonText}>{t('camera.newAnalysis')}</Text>
           </TouchableOpacity>
         </Animated.View>
       </SafeAreaView>
@@ -166,14 +168,14 @@ export default function CameraScreen() {
             <TouchableOpacity onPress={resetCamera} style={styles.backButton}>
               <X size={24} color="#FFFFFF" />
             </TouchableOpacity>
-            <Text style={styles.previewTitle}>Vérifier l'Image</Text>
+            <Text style={styles.previewTitle}>{t('camera.verifyImage')}</Text>
           </View>
 
           <Image source={{ uri: capturedImage }} style={styles.previewImage} />
 
           <View style={styles.previewActions}>
             <TouchableOpacity style={styles.retakeButton} onPress={resetCamera}>
-              <Text style={styles.retakeButtonText}>Reprendre</Text>
+              <Text style={styles.retakeButtonText}>{t('camera.retake')}</Text>
             </TouchableOpacity>
             
             <TouchableOpacity 
@@ -184,7 +186,7 @@ export default function CameraScreen() {
               {isAnalyzing ? (
                 <ActivityIndicator size="small" color="#FFFFFF" />
               ) : (
-                <Text style={styles.analyzeButtonText}>Analyser</Text>
+                <Text style={styles.analyzeButtonText}>{t('camera.analyze')}</Text>
               )}
             </TouchableOpacity>
           </View>
@@ -198,8 +200,8 @@ export default function CameraScreen() {
       <CameraView style={styles.camera} facing={facing} ref={cameraRef}>
         <View style={styles.cameraOverlay}>
           <View style={styles.cameraHeader}>
-            <Text style={styles.cameraTitle}>Positionnez la feuille de cassava</Text>
-            <Text style={styles.cameraSubtitle}>Assurez-vous que la feuille est bien éclairée</Text>
+            <Text style={styles.cameraTitle}>{t('camera.positionLeaf')}</Text>
+            <Text style={styles.cameraSubtitle}>{t('camera.ensureLighting')}</Text>
           </View>
 
           <View style={styles.focusFrame} />

@@ -1,0 +1,128 @@
+{
+  "common": {
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès",
+    "cancel": "Annuler",
+    "confirm": "Confirmer",
+    "save": "Sauvegarder",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "back": "Retour",
+    "next": "Suivant",
+    "done": "Terminé",
+    "retry": "Réessayer"
+  },
+  "navigation": {
+    "home": "Accueil",
+    "camera": "Analyser",
+    "history": "Historique",
+    "settings": "Paramètres"
+  },
+  "home": {
+    "title": "CassavaHealth",
+    "subtitle": "Détection intelligente des maladies du manioc",
+    "quickAction": "Analyser une Feuille",
+    "features": "Fonctionnalités",
+    "impact": "Impact",
+    "rapidAnalysis": {
+      "title": "Analyse Rapide",
+      "description": "Prenez une photo et obtenez un diagnostic instantané"
+    },
+    "importImage": {
+      "title": "Importer une Image",
+      "description": "Analysez une photo existante de votre galerie"
+    },
+    "tracking": {
+      "title": "Suivi des Cultures",
+      "description": "Surveillez la santé de vos plants au fil du temps"
+    },
+    "prevention": {
+      "title": "Prévention",
+      "description": "Conseils pour maintenir vos plants en bonne santé"
+    },
+    "stats": {
+      "accuracy": "Précision",
+      "analysis": "Analyse",
+      "available": "Disponible"
+    }
+  },
+  "camera": {
+    "title": "Analyser",
+    "permissionTitle": "Accès à la caméra requis",
+    "permissionMessage": "Nous avons besoin d'accéder à votre caméra pour analyser les feuilles de cassava",
+    "grantPermission": "Autoriser l'accès",
+    "positionLeaf": "Positionnez la feuille de cassava",
+    "ensureLighting": "Assurez-vous que la feuille est bien éclairée",
+    "verifyImage": "Vérifier l'Image",
+    "retake": "Reprendre",
+    "analyze": "Analyser",
+    "analysisResult": "Résultat de l'Analyse",
+    "confidence": "Confiance",
+    "severity": "Sévérité",
+    "recommendedTreatment": "Traitement Recommandé",
+    "recommendations": "Recommandations",
+    "newAnalysis": "Nouvelle Analyse",
+    "analyzing": "Analyse en cours...",
+    "errorTakingPhoto": "Impossible de prendre la photo",
+    "errorAnalyzing": "Impossible d'analyser l'image"
+  },
+  "history": {
+    "title": "Historique des Analyses",
+    "total": "Total",
+    "healthy": "Saines",
+    "diseased": "Malades",
+    "all": "Toutes",
+    "noAnalysisFound": "Aucune analyse trouvée",
+    "startAnalyzing": "Commencez par analyser une feuille de cassava"
+  },
+  "settings": {
+    "title": "Paramètres",
+    "analysis": "Analyse",
+    "notifications": "Notifications",
+    "general": "Général",
+    "highQuality": "Qualité d'image élevée",
+    "autoSave": "Sauvegarde automatique",
+    "diseaseAlerts": "Alertes de maladie",
+    "language": "Langue",
+    "helpSupport": "Aide et Support",
+    "about": "À propos",
+    "diseaseGuide": "Guide des Maladies",
+    "prevention": "Prévention:",
+    "appDescription": "Application de détection intelligente des maladies du manioc utilisant l'intelligence artificielle pour aider les agriculteurs à maintenir des cultures saines."
+  },
+  "diseases": {
+    "healthy": "Sain",
+    "cassavaMosaicDisease": "Maladie de la Mosaïque du Cassava",
+    "cassavaBrownStreak": "Stries Brunes du Cassava",
+    "cassavaBacterialBlight": "Brûlure Bactérienne du Cassava",
+    "descriptions": {
+      "cassavaMosaicDisease": "Maladie virale causant des motifs en mosaïque sur les feuilles",
+      "cassavaBrownStreak": "Maladie virale provoquant des stries brunes sur les tiges et racines",
+      "cassavaBacterialBlight": "Infection bactérienne causant le flétrissement des feuilles"
+    },
+    "preventions": {
+      "cassavaMosaicDisease": "Utiliser des variétés résistantes, éliminer les plants infectés",
+      "cassavaBrownStreak": "Planter des variétés tolérantes, surveiller régulièrement",
+      "cassavaBacterialBlight": "Éviter l'humidité excessive, rotation des cultures"
+    },
+    "treatments": {
+      "cassavaMosaicDisease": "Utiliser des plants résistants, éliminer les plants infectés",
+      "cassavaBrownStreak": "Appliquer un traitement préventif, surveiller les symptômes",
+      "cassavaBacterialBlight": "Traitement antibactérien, améliorer le drainage"
+    },
+    "recommendations": {
+      "isolate": "Isoler les plants infectés",
+      "preventiveTreatment": "Appliquer un traitement préventif",
+      "regularMonitoring": "Surveiller régulièrement",
+      "removeInfected": "Éliminer les plants infectés",
+      "improveVentilation": "Améliorer la ventilation",
+      "reduceMoisture": "Réduire l'humidité"
+    },
+    "severity": {
+      "low": "Faible",
+      "moderate": "Modérée",
+      "high": "Élevée"
+    }
+  }
+}

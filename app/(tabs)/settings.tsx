@@ -1,28 +1,38 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Switch } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Settings, Bell, Shield, CircleHelp as HelpCircle, Info, ChevronRight, Globe, Camera } from 'lucide-react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
 export default function SettingsScreen() {
+  const { t, i18n } = useTranslation();
   const [notifications, setNotifications] = useState(true);
   const [autoSave, setAutoSave] = useState(true);
   const [highQuality, setHighQuality] = useState(false);
 
+  const changeLanguage = (lng: string) => {
+    i18n.changeLanguage(lng);
+  };
+
+  const getCurrentLanguage = () => {
+    return i18n.language === 'fr' ? 'Français' : 'English';
+  };
+
   const settingsData = [
     {
-      title: 'Analyse',
+      title: t('settings.analysis'),
       items: [
         {
           icon: Camera,
-          label: 'Qualité d\'image élevée',
+          label: t('settings.highQuality'),
           type: 'switch',
           value: highQuality,
           onValueChange: setHighQuality,
         },
         {
           icon: Shield,
-          label: 'Sauvegarde automatique',
+          label: t('settings.autoSave'),
           type: 'switch',
           value: autoSave,
           onValueChange: setAutoSave,
@@ -30,11 +40,11 @@ export default function SettingsScreen() {
       ],
     },
     {
-      title: 'Notifications',
+      title: t('settings.notifications'),
       items: [
         {
           icon: Bell,
-          label: 'Alertes de maladie',
+          label: t('settings.diseaseAlerts'),
           type: 'switch',
           value: notifications,
           onValueChange: setNotifications,
@@ -42,22 +52,27 @@ export default function SettingsScreen() {
       ],
     },
     {
-      title: 'Général',
+      title: t('settings.general'),
       items: [
         {
           icon: Globe,
-          label: 'Langue',
+          label: t('settings.language'),
           type: 'navigation',
-          value: 'Français',
+          value: getCurrentLanguage(),
+          action: () => {
+            // Toggle between French and English
+            const newLang = i18n.language === 'fr' ? 'en' : 'fr';
+            changeLanguage(newLang);
+          },
         },
         {
           icon: HelpCircle,
-          label: 'Aide et Support',
+          label: t('settings.helpSupport'),
           type: 'navigation',
         },
         {
           icon: Info,
-          label: 'À propos',
+          label: t('settings.about'),
           type: 'navigation',
         },
       ],
@@ -66,19 +81,19 @@ export default function SettingsScreen() {
 
   const diseaseInfo = [
     {
-      name: 'Cassava Mosaic Disease',
-      description: 'Maladie virale causant des motifs en mosaïque sur les feuilles',
-      prevention: 'Utiliser des variétés résistantes, éliminer les plants infectés',
+      name: t('diseases.cassavaMosaicDisease'),
+      description: t('diseases.descriptions.cassavaMosaicDisease'),
+      prevention: t('diseases.preventions.cassavaMosaicDisease'),
     },
     {
-      name: 'Cassava Brown Streak',
-      description: 'Maladie virale provoquant des stries brunes sur les tiges et racines',
-      prevention: 'Planter des variétés tolérantes, surveiller régulièrement',
+      name: t('diseases.cassavaBrownStreak'),
+      description: t('diseases.descriptions.cassavaBrownStreak'),
+      prevention: t('diseases.preventions.cassavaBrownStreak'),
     },
     {
-      name: 'Cassava Bacterial Blight',
-      description: 'Infection bactérienne causant le flétrissement des feuilles',
-      prevention: 'Éviter l\'humidité excessive, rotation des cultures',
+      name: t('diseases.cassavaBacterialBlight'),
+      description: t('diseases.descriptions.cassavaBacterialBlight'),
+      prevention: t('diseases.preventions.cassavaBacterialBlight'),
     },
   ];
 
@@ -86,7 +101,7 @@ export default function SettingsScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Settings size={24} color="#2D5016" />
-        <Text style={styles.headerTitle}>Paramètres</Text>
+        <Text style={styles.headerTitle}>{t('settings.title')}</Text>
       </View>
 
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
@@ -117,10 +132,12 @@ export default function SettingsScreen() {
                     />
                   ) : (
                     <View style={styles.settingRight}>
+                      <TouchableOpacity onPress={item.action}>
                       {item.value && (
                         <Text style={styles.settingValue}>{item.value}</Text>
                       )}
                       <ChevronRight size={20} color="#CCCCCC" />
+                      </TouchableOpacity>
                     </View>
                   )}
                 </View>
@@ -131,13 +148,13 @@ export default function SettingsScreen() {
 
         {/* Disease Information */}
         <Animated.View entering={FadeInDown.delay(500)} style={styles.section}>
-          <Text style={styles.sectionTitle}>Guide des Maladies</Text>
+          <Text style={styles.sectionTitle}>{t('settings.diseaseGuide')}</Text>
           <View style={styles.sectionContent}>
             {diseaseInfo.map((disease, index) => (
               <View key={index} style={styles.diseaseCard}>
                 <Text style={styles.diseaseName}>{disease.name}</Text>
                 <Text style={styles.diseaseDescription}>{disease.description}</Text>
-                <Text style={styles.diseasePreventionLabel}>Prévention:</Text>
+                <Text style={styles.diseasePreventionLabel}>{t('settings.prevention')}</Text>
                 <Text style={styles.diseasePrevention}>{disease.prevention}</Text>
               </View>
             ))}
@@ -146,12 +163,10 @@ export default function SettingsScreen() {
 
         {/* App Info */}
         <Animated.View entering={FadeInDown.delay(600)} style={styles.appInfo}>
-          <Text style={styles.appName}>CassavaHealth</Text>
+          <Text style={styles.appName}>{t('home.title')}</Text>
           <Text style={styles.appVersion}>Version 1.0.0</Text>
           <Text style={styles.appDescription}>
-            Application de détection intelligente des maladies du manioc utilisant 
-            l'intelligence artificielle pour aider les agriculteurs à maintenir 
-            des cultures saines.
+            {t('settings.appDescription')}
           </Text>
         </Animated.View>
       </ScrollView>

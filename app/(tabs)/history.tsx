@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Calendar, Clock, TrendingUp, Filter } from 'lucide-react-native';
@@ -15,6 +16,7 @@ interface AnalysisRecord {
 }
 
 export default function HistoryScreen() {
+  const { t } = useTranslation();
   const [analyses, setAnalyses] = useState<AnalysisRecord[]>([]);
   const [filterType, setFilterType] = useState<'all' | 'healthy' | 'diseased'>('all');
 
@@ -25,16 +27,16 @@ export default function HistoryScreen() {
         id: '1',
         date: '15 Jan 2025',
         time: '14:30',
-        disease: 'Cassava Mosaic Disease',
+        disease: t('diseases.cassavaMosaicDisease'),
         confidence: 0.94,
-        severity: 'Modérée',
+        severity: t('diseases.severity.moderate'),
         imageUri: 'https://images.pexels.com/photos/6146970/pexels-photo-6146970.jpeg?auto=compress&cs=tinysrgb&w=400',
       },
       {
         id: '2',
         date: '14 Jan 2025',
         time: '09:15',
-        disease: 'Sain',
+        disease: t('diseases.healthy'),
         confidence: 0.98,
         severity: 'N/A',
         imageUri: 'https://images.pexels.com/photos/4750329/pexels-photo-4750329.jpeg?auto=compress&cs=tinysrgb&w=400',
@@ -43,9 +45,9 @@ export default function HistoryScreen() {
         id: '3',
         date: '13 Jan 2025',
         time: '16:45',
-        disease: 'Cassava Brown Streak',
+        disease: t('diseases.cassavaBrownStreak'),
         confidence: 0.87,
-        severity: 'Élevée',
+        severity: t('diseases.severity.high'),
         imageUri: 'https://images.pexels.com/photos/6146970/pexels-photo-6146970.jpeg?auto=compress&cs=tinysrgb&w=400',
       },
     ];
@@ -54,14 +56,14 @@ export default function HistoryScreen() {
 
   const filteredAnalyses = analyses.filter(analysis => {
     if (filterType === 'all') return true;
-    if (filterType === 'healthy') return analysis.disease === 'Sain';
-    if (filterType === 'diseased') return analysis.disease !== 'Sain';
+    if (filterType === 'healthy') return analysis.disease === t('diseases.healthy');
+    if (filterType === 'diseased') return analysis.disease !== t('diseases.healthy');
     return true;
   });
 
   const getDiseaseStats = () => {
     const total = analyses.length;
-    const healthy = analyses.filter(a => a.disease === 'Sain').length;
+    const healthy = analyses.filter(a => a.disease === t('diseases.healthy')).length;
     const diseased = total - healthy;
     return { total, healthy, diseased };
   };
@@ -71,7 +73,7 @@ export default function HistoryScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Historique des Analyses</Text>
+        <Text style={styles.headerTitle}>{t('history.title')}</Text>
         <TouchableOpacity style={styles.filterButton}>
           <Filter size={20} color="#2D5016" />
         </TouchableOpacity>
@@ -83,21 +85,21 @@ export default function HistoryScreen() {
           <View style={styles.statCard}>
             <TrendingUp size={24} color="#2D5016" />
             <Text style={styles.statNumber}>{stats.total}</Text>
-            <Text style={styles.statLabel}>Total</Text>
+            <Text style={styles.statLabel}>{t('history.total')}</Text>
           </View>
           <View style={styles.statCard}>
             <View style={[styles.statIcon, { backgroundColor: '#1F7A1F15' }]}>
               <Text style={[styles.statIconText, { color: '#1F7A1F' }]}>✓</Text>
             </View>
             <Text style={styles.statNumber}>{stats.healthy}</Text>
-            <Text style={styles.statLabel}>Saines</Text>
+            <Text style={styles.statLabel}>{t('history.healthy')}</Text>
           </View>
           <View style={styles.statCard}>
             <View style={[styles.statIcon, { backgroundColor: '#DC262615' }]}>
               <Text style={[styles.statIconText, { color: '#DC2626' }]}>!</Text>
             </View>
             <Text style={styles.statNumber}>{stats.diseased}</Text>
-            <Text style={styles.statLabel}>Malades</Text>
+            <Text style={styles.statLabel}>{t('history.diseased')}</Text>
           </View>
         </Animated.View>
 
@@ -108,7 +110,7 @@ export default function HistoryScreen() {
             onPress={() => setFilterType('all')}
           >
             <Text style={[styles.filterTabText, filterType === 'all' && styles.filterTabTextActive]}>
-              Toutes
+              {t('history.all')}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -116,7 +118,7 @@ export default function HistoryScreen() {
             onPress={() => setFilterType('healthy')}
           >
             <Text style={[styles.filterTabText, filterType === 'healthy' && styles.filterTabTextActive]}>
-              Saines
+              {t('history.healthy')}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -124,7 +126,7 @@ export default function HistoryScreen() {
             onPress={() => setFilterType('diseased')}
           >
             <Text style={[styles.filterTabText, filterType === 'diseased' && styles.filterTabTextActive]}>
-              Malades
+              {t('history.diseased')}
             </Text>
           </TouchableOpacity>
         </Animated.View>
@@ -151,20 +153,20 @@ export default function HistoryScreen() {
 
                 <Text style={[
                   styles.recordDisease,
-                  analysis.disease === 'Sain' ? styles.healthyText : styles.diseaseText
+                  analysis.disease === t('diseases.healthy') ? styles.healthyText : styles.diseaseText
                 ]}>
                   {analysis.disease}
                 </Text>
 
                 <View style={styles.recordMetrics}>
                   <Text style={styles.confidenceText}>
-                    Confiance: {Math.round(analysis.confidence * 100)}%
+                    {t('camera.confidence')}: {Math.round(analysis.confidence * 100)}%
                   </Text>
                   {analysis.severity !== 'N/A' && (
                     <Text style={[
                       styles.severityText,
-                      analysis.severity === 'Élevée' ? styles.severityHigh :
-                      analysis.severity === 'Modérée' ? styles.severityMedium :
+                      analysis.severity === t('diseases.severity.high') ? styles.severityHigh :
+                      analysis.severity === t('diseases.severity.moderate') ? styles.severityMedium :
                       styles.severityLow
                     ]}>
                       {analysis.severity}
@@ -179,9 +181,9 @@ export default function HistoryScreen() {
         {filteredAnalyses.length === 0 && (
           <View style={styles.emptyState}>
             <Calendar size={48} color="#CCCCCC" />
-            <Text style={styles.emptyStateText}>Aucune analyse trouvée</Text>
+            <Text style={styles.emptyStateText}>{t('history.noAnalysisFound')}</Text>
             <Text style={styles.emptyStateSubtext}>
-              Commencez par analyser une feuille de cassava
+              {t('history.startAnalyzing')}
             </Text>
           </View>
         )}

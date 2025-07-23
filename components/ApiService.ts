@@ -1,3 +1,5 @@
+import i18n from '@/utils/i18n';
+
 export interface AnalysisRequest {
   image: string; // base64 encoded image
   format?: 'jpg' | 'png';
@@ -6,7 +8,7 @@ export interface AnalysisRequest {
 export interface AnalysisResponse {
   disease: string;
   confidence: number;
-  severity: 'Faible' | 'Modérée' | 'Élevée';
+  severity: 'Low' | 'Moderate' | 'High';
   treatment: string;
   recommendations: string[];
   timestamp: string;
@@ -30,11 +32,13 @@ export class CassavaApiService {
 
   async analyzeImage(request: AnalysisRequest): Promise<AnalysisResponse> {
     try {
+      // Add language parameter to API request
       const response = await fetch(`${this.baseUrl}/analyze`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${process.env.EXPO_PUBLIC_API_KEY || ''}`,
+          'Accept-Language': i18n.language,
         },
         body: JSON.stringify(request),
       });
@@ -47,7 +51,10 @@ export class CassavaApiService {
       return result;
     } catch (error) {
       console.error('Erreur lors de l\'analyse:', error);
-      throw new Error('Impossible d\'analyser l\'image. Vérifiez votre connexion.');
+      const errorMessage = i18n.language === 'fr' 
+        ? 'Impossible d\'analyser l\'image. Vérifiez votre connexion.'
+        : 'Unable to analyze image. Check your connection.';
+      throw new Error(errorMessage);
     }
   }
 
@@ -58,6 +65,7 @@ export class CassavaApiService {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${process.env.EXPO_PUBLIC_API_KEY || ''}`,
+        'Accept-Language': i18n.language,
         },
       });
       

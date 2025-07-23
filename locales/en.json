@@ -1,0 +1,128 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "back": "Back",
+    "next": "Next",
+    "done": "Done",
+    "retry": "Retry"
+  },
+  "navigation": {
+    "home": "Home",
+    "camera": "Analyze",
+    "history": "History",
+    "settings": "Settings"
+  },
+  "home": {
+    "title": "CassavaHealth",
+    "subtitle": "Intelligent cassava disease detection",
+    "quickAction": "Analyze a Leaf",
+    "features": "Features",
+    "impact": "Impact",
+    "rapidAnalysis": {
+      "title": "Rapid Analysis",
+      "description": "Take a photo and get an instant diagnosis"
+    },
+    "importImage": {
+      "title": "Import Image",
+      "description": "Analyze an existing photo from your gallery"
+    },
+    "tracking": {
+      "title": "Crop Monitoring",
+      "description": "Monitor your plants' health over time"
+    },
+    "prevention": {
+      "title": "Prevention",
+      "description": "Tips to keep your plants healthy"
+    },
+    "stats": {
+      "accuracy": "Accuracy",
+      "analysis": "Analysis",
+      "available": "Available"
+    }
+  },
+  "camera": {
+    "title": "Analyze",
+    "permissionTitle": "Camera access required",
+    "permissionMessage": "We need access to your camera to analyze cassava leaves",
+    "grantPermission": "Grant access",
+    "positionLeaf": "Position the cassava leaf",
+    "ensureLighting": "Make sure the leaf is well lit",
+    "verifyImage": "Verify Image",
+    "retake": "Retake",
+    "analyze": "Analyze",
+    "analysisResult": "Analysis Result",
+    "confidence": "Confidence",
+    "severity": "Severity",
+    "recommendedTreatment": "Recommended Treatment",
+    "recommendations": "Recommendations",
+    "newAnalysis": "New Analysis",
+    "analyzing": "Analyzing...",
+    "errorTakingPhoto": "Unable to take photo",
+    "errorAnalyzing": "Unable to analyze image"
+  },
+  "history": {
+    "title": "Analysis History",
+    "total": "Total",
+    "healthy": "Healthy",
+    "diseased": "Diseased",
+    "all": "All",
+    "noAnalysisFound": "No analysis found",
+    "startAnalyzing": "Start by analyzing a cassava leaf"
+  },
+  "settings": {
+    "title": "Settings",
+    "analysis": "Analysis",
+    "notifications": "Notifications",
+    "general": "General",
+    "highQuality": "High image quality",
+    "autoSave": "Auto save",
+    "diseaseAlerts": "Disease alerts",
+    "language": "Language",
+    "helpSupport": "Help & Support",
+    "about": "About",
+    "diseaseGuide": "Disease Guide",
+    "prevention": "Prevention:",
+    "appDescription": "Intelligent cassava disease detection application using artificial intelligence to help farmers maintain healthy crops."
+  },
+  "diseases": {
+    "healthy": "Healthy",
+    "cassavaMosaicDisease": "Cassava Mosaic Disease",
+    "cassavaBrownStreak": "Cassava Brown Streak",
+    "cassavaBacterialBlight": "Cassava Bacterial Blight",
+    "descriptions": {
+      "cassavaMosaicDisease": "Viral disease causing mosaic patterns on leaves",
+      "cassavaBrownStreak": "Viral disease causing brown streaks on stems and roots",
+      "cassavaBacterialBlight": "Bacterial infection causing leaf wilting"
+    },
+    "preventions": {
+      "cassavaMosaicDisease": "Use resistant varieties, remove infected plants",
+      "cassavaBrownStreak": "Plant tolerant varieties, monitor regularly",
+      "cassavaBacterialBlight": "Avoid excessive moisture, crop rotation"
+    },
+    "treatments": {
+      "cassavaMosaicDisease": "Use resistant plants, eliminate infected plants",
+      "cassavaBrownStreak": "Apply preventive treatment, monitor symptoms",
+      "cassavaBacterialBlight": "Antibacterial treatment, improve drainage"
+    },
+    "recommendations": {
+      "isolate": "Isolate infected plants",
+      "preventiveTreatment": "Apply preventive treatment",
+      "regularMonitoring": "Monitor regularly",
+      "removeInfected": "Remove infected plants",
+      "improveVentilation": "Improve ventilation",
+      "reduceMoisture": "Reduce moisture"
+    },
+    "severity": {
+      "low": "Low",
+      "moderate": "Moderate",
+      "high": "High"
+    }
+  }
+}

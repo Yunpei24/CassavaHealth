@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -6,32 +7,34 @@ import { Camera, Upload, TrendingUp, Shield } from 'lucide-react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
 export default function HomeScreen() {
+  const { t } = useTranslation();
+
   const features = [
     {
       icon: Camera,
-      title: 'Analyse Rapide',
-      description: 'Prenez une photo et obtenez un diagnostic instantané',
+      title: t('home.rapidAnalysis.title'),
+      description: t('home.rapidAnalysis.description'),
       action: () => router.push('/camera'),
       color: '#2D5016',
     },
     {
       icon: Upload,
-      title: 'Importer une Image',
-      description: 'Analysez une photo existante de votre galerie',
+      title: t('home.importImage.title'),
+      description: t('home.importImage.description'),
       action: () => router.push('/camera?mode=gallery'),
       color: '#E07A3F',
     },
     {
       icon: TrendingUp,
-      title: 'Suivi des Cultures',
-      description: 'Surveillez la santé de vos plants au fil du temps',
+      title: t('home.tracking.title'),
+      description: t('home.tracking.description'),
       action: () => router.push('/history'),
       color: '#8B5A3C',
     },
     {
       icon: Shield,
-      title: 'Prévention',
-      description: 'Conseils pour maintenir vos plants en bonne santé',
+      title: t('home.prevention.title'),
+      description: t('home.prevention.description'),
       action: () => router.push('/settings'),
       color: '#1F7A1F',
     },
@@ -47,9 +50,9 @@ export default function HomeScreen() {
             style={styles.headerImage}
           />
           <View style={styles.headerOverlay}>
-            <Text style={styles.headerTitle}>CassavaHealth</Text>
+            <Text style={styles.headerTitle}>{t('home.title')}</Text>
             <Text style={styles.headerSubtitle}>
-              Détection intelligente des maladies du manioc
+              {t('home.subtitle')}
             </Text>
           </View>
         </Animated.View>
@@ -62,13 +65,13 @@ export default function HomeScreen() {
             activeOpacity={0.8}
           >
             <Camera size={24} color="#FFFFFF" />
-            <Text style={styles.primaryButtonText}>Analyser une Feuille</Text>
+            <Text style={styles.primaryButtonText}>{t('home.quickAction')}</Text>
           </TouchableOpacity>
         </Animated.View>
 
         {/* Features Grid */}
         <Animated.View entering={FadeInDown.delay(300)} style={styles.featuresSection}>
-          <Text style={styles.sectionTitle}>Fonctionnalités</Text>
+          <Text style={styles.sectionTitle}>{t('home.features')}</Text>
           <View style={styles.featuresGrid}>
             {features.map((feature, index) => (
               <TouchableOpacity
@@ -89,19 +92,19 @@ export default function HomeScreen() {
 
         {/* Stats */}
         <Animated.View entering={FadeInDown.delay(400)} style={styles.statsSection}>
-          <Text style={styles.sectionTitle}>Impact</Text>
+          <Text style={styles.sectionTitle}>{t('home.impact')}</Text>
           <View style={styles.statsGrid}>
             <View style={styles.statCard}>
               <Text style={styles.statNumber}>95%</Text>
-              <Text style={styles.statLabel}>Précision</Text>
+              <Text style={styles.statLabel}>{t('home.stats.accuracy')}</Text>
             </View>
             <View style={styles.statCard}>
               <Text style={styles.statNumber}>2s</Text>
-              <Text style={styles.statLabel}>Analyse</Text>
+              <Text style={styles.statLabel}>{t('home.stats.analysis')}</Text>
             </View>
             <View style={styles.statCard}>
               <Text style={styles.statNumber}>24/7</Text>
-              <Text style={styles.statLabel}>Disponible</Text>
+              <Text style={styles.statLabel}>{t('home.stats.available')}</Text>
             </View>
           </View>
         </Animated.View>
