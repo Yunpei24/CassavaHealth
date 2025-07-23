@@ -88,6 +88,9 @@
     "helpSupport": "Help & Support",
     "about": "About",
     "diseaseGuide": "Disease Guide",
+    "analysisMode": "Analysis mode",
+    "localMode": "Local model (offline)",
+    "apiMode": "Online API",
     "prevention": "Prevention:",
     "appDescription": "Intelligent cassava disease detection application using artificial intelligence to help farmers maintain healthy crops."
   },

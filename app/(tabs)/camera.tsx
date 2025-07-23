@@ -5,6 +5,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import { Camera, RotateCcw, Image as ImageIcon, X, Check } from 'lucide-react-native';
+import { StorageService } from '@/components/StorageService';
+import { localModelService } from '@/components/LocalModelService';
+import { apiService } from '@/components/ApiService';
 import Animated, { FadeIn, SlideInUp } from 'react-native-reanimated';
 
 export default function CameraScreen() {
@@ -70,27 +73,54 @@ export default function CameraScreen() {
 
     setIsAnalyzing(true);
     try {
-      // Remplacez cette URL par votre endpoint API
-      const API_URL = 'https://votre-api.com/analyze';
+      // Récupérer le mode d'analyse choisi par l'utilisateur
+      const analysisMode = await StorageService.getAnalysisMode();
       
-      // Simuler l'appel API pour la démo
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      let result;
       
-      // Résultat simulé - remplacez par votre vraie logique d'API
-      const mockResult = {
-        disease: t('diseases.cassavaMosaicDisease'),
-        confidence: 0.92,
-        severity: t('diseases.severity.moderate'),
-        treatment: t('diseases.treatments.cassavaMosaicDisease'),
-        recommendations: [
-          t('diseases.recommendations.isolate'),
-          t('diseases.recommendations.preventiveTreatment'),
-          t('diseases.recommendations.regularMonitoring')
-        ]
+      if (analysisMode === 'local') {
+        console.log('Using local model for analysis...');
+        result = await localModelService.analyzeImage({ imageUri: capturedImage });
+      } else {
+        console.log('Using API for analysis...');
+        // Pour l'API, vous devrez convertir l'image en base64
+        const response = await fetch(capturedImage);
+        const blob = await response.blob();
+        const base64 = await new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.readAsDataURL(blob);
+        });
+        
+        result = await apiService.analyzeImage({ 
+          image: base64.split(',')[1], // Enlever le préfixe data:image/...
+          format: 'jpg' 
+        });
+      }
+      
+      // Mapper la sévérité si nécessaire
+      const mappedResult = {
+        ...result,
+        severity: result.severity === 'Low' ? t('diseases.severity.low') :
+                 result.severity === 'Moderate' ? t('diseases.severity.moderate') :
+                 t('diseases.severity.high')
       };
       
-      setAnalysisResult(mockResult);
+      setAnalysisResult(mappedResult);
+      
+      // Sauvegarder l'analyse dans l'historique
+      await StorageService.saveAnalysis({
+        imageUri: capturedImage,
+        disease: mappedResult.disease,
+        confidence: mappedResult.confidence,
+        severity: mappedResult.severity,
+        treatment: mappedResult.treatment,
+        recommendations: mappedResult.recommendations,
+        timestamp: mappedResult.timestamp,
+      });
+      
     } catch (error) {
+      console.error('Analysis error:', error);
       Alert.alert(t('common.error'), t('camera.errorAnalyzing'));
     } finally {
       setIsAnalyzing(false);
@@ -202,6 +232,9 @@ export default function CameraScreen() {
           <View style={styles.cameraHeader}>
             <Text style={styles.cameraTitle}>{t('camera.positionLeaf')}</Text>
             <Text style={styles.cameraSubtitle}>{t('camera.ensureLighting')}</Text>
+            <Text style={styles.cameraModeIndicator}>
+              {analysisMode === 'local' ? '📱 Local' : '🌐 API'}
+            </Text>
           </View>
 
           <View style={styles.focusFrame} />
@@ -286,6 +319,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#E0E0E0',
     textAlign: 'center',
+  },
+  cameraModeIndicator: {
+    fontSize: 12,
+    color: '#B0B0B0',
+    textAlign: 'center',
+    marginTop: 8,
+    fontWeight: '500',
   },
   focusFrame: {
     position: 'absolute',
