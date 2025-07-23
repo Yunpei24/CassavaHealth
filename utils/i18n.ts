@@ -5,16 +5,19 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import fr from '../locales/fr.json';
 import en from '../locales/en.json';
 
+const STORAGE_KEY = 'user-language';
 const LANGUAGE_DETECTOR = {
   type: 'languageDetector' as const,
   async: true,
   detect: async (callback: (lng: string) => void) => {
     try {
-      const savedLanguage = await AsyncStorage.getItem('user-language');
+      const savedLanguage = await AsyncStorage.getItem(STORAGE_KEY);
+      console.log('Detected language:', savedLanguage);
       if (savedLanguage) {
         callback(savedLanguage);
       } else {
         // Default to French
+        console.log('No saved language, defaulting to French');
         callback('fr');
       }
     } catch (error) {
@@ -25,7 +28,8 @@ const LANGUAGE_DETECTOR = {
   init: () => {},
   cacheUserLanguage: async (lng: string) => {
     try {
-      await AsyncStorage.setItem('user-language', lng);
+      console.log('Saving language to storage:', lng);
+      await AsyncStorage.setItem(STORAGE_KEY, lng);
     } catch (error) {
       console.log('Error saving language to storage', error);
     }
@@ -42,10 +46,17 @@ i18n
       en: { translation: en },
     },
     fallbackLng: 'fr',
-    debug: false,
+    debug: __DEV__,
     interpolation: {
       escapeValue: false,
     },
+    react: {
+      useSuspense: false,
+    },
   });
 
+// Add event listener for language changes
+i18n.on('languageChanged', (lng) => {
+  console.log('Language changed to:', lng);
+});
 export default i18n;

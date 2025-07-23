@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Switch } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Switch, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Settings, Bell, Shield, CircleHelp as HelpCircle, Info, ChevronRight, Globe, Camera } from 'lucide-react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
@@ -11,12 +11,25 @@ export default function SettingsScreen() {
   const [autoSave, setAutoSave] = useState(true);
   const [highQuality, setHighQuality] = useState(false);
 
-  const changeLanguage = (lng: string) => {
-    i18n.changeLanguage(lng);
+  const changeLanguage = async () => {
+    const currentLang = i18n.language;
+    const newLang = currentLang === 'fr' ? 'en' : 'fr';
+    
+    try {
+      await i18n.changeLanguage(newLang);
+      // Force a re-render by updating a state if needed
+    } catch (error) {
+      console.error('Error changing language:', error);
+      Alert.alert(
+        t('common.error'),
+        'Unable to change language. Please try again.'
+      );
+    }
   };
 
   const getCurrentLanguage = () => {
-    return i18n.language === 'fr' ? 'Français' : 'English';
+    const lang = i18n.language || 'fr';
+    return lang === 'fr' ? 'Français' : 'English';
   };
 
   const settingsData = [
@@ -59,11 +72,7 @@ export default function SettingsScreen() {
           label: t('settings.language'),
           type: 'navigation',
           value: getCurrentLanguage(),
-          action: () => {
-            // Toggle between French and English
-            const newLang = i18n.language === 'fr' ? 'en' : 'fr';
-            changeLanguage(newLang);
-          },
+          action: changeLanguage,
         },
         {
           icon: HelpCircle,
@@ -132,7 +141,7 @@ export default function SettingsScreen() {
                     />
                   ) : (
                     <View style={styles.settingRight}>
-                      <TouchableOpacity onPress={item.action}>
+                      <TouchableOpacity onPress={item.action} style={styles.languageButton}>
                       {item.value && (
                         <Text style={styles.settingValue}>{item.value}</Text>
                       )}
@@ -250,6 +259,11 @@ const styles = StyleSheet.create({
   settingValue: {
     fontSize: 14,
     color: '#666666',
+  },
+  languageButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   diseaseCard: {
     padding: 16,
