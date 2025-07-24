@@ -1,6 +1,5 @@
 import * as tf from '@tensorflow/tfjs';
 import '@tensorflow/tfjs-react-native';
-import '@tensorflow/tfjs-platform-react-native';
 import { manipulateAsync, FlipType, SaveFormat } from 'expo-image-manipulator';
 import { Asset } from 'expo-asset';
 import i18n from '@/utils/i18n';
