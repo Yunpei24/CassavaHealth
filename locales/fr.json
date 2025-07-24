@@ -88,9 +88,6 @@
     "helpSupport": "Aide et Support",
     "about": "À propos",
     "diseaseGuide": "Guide des Maladies",
-    "analysisMode": "Mode d'analyse",
-    "localMode": "Modèle local (hors ligne)",
-    "apiMode": "API en ligne",
     "prevention": "Prévention:",
     "appDescription": "Application de détection intelligente des maladies du manioc utilisant l'intelligence artificielle pour aider les agriculteurs à maintenir des cultures saines."
   },

@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Switch, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Settings, Bell, Shield, CircleHelp as HelpCircle, Info, ChevronRight, Globe, Camera } from 'lucide-react-native';
-import { StorageService } from '@/components/StorageService';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
 export default function SettingsScreen() {
@@ -11,34 +10,6 @@ export default function SettingsScreen() {
   const [notifications, setNotifications] = useState(true);
   const [autoSave, setAutoSave] = useState(true);
   const [highQuality, setHighQuality] = useState(false);
-  const [analysisMode, setAnalysisMode] = useState<'local' | 'api'>('api');
-
-  useEffect(() => {
-    loadSettings();
-  }, []);
-
-  const loadSettings = async () => {
-    try {
-      const mode = await StorageService.getAnalysisMode();
-      setAnalysisMode(mode);
-    } catch (error) {
-      console.error('Error loading settings:', error);
-    }
-  };
-
-  const toggleAnalysisMode = async () => {
-    const newMode = analysisMode === 'local' ? 'api' : 'local';
-    try {
-      await StorageService.saveAnalysisMode(newMode);
-      setAnalysisMode(newMode);
-    } catch (error) {
-      console.error('Error saving analysis mode:', error);
-      Alert.alert(
-        t('common.error'),
-        'Unable to change analysis mode. Please try again.'
-      );
-    }
-  };
 
   const changeLanguage = async () => {
     const currentLang = i18n.language;
@@ -78,17 +49,6 @@ export default function SettingsScreen() {
           type: 'switch',
           value: autoSave,
           onValueChange: setAutoSave,
-        },
-        {
-          icon: Shield,
-          label: t('settings.analysisMode'),
-          type: 'switch',
-          value: analysisMode === 'local',
-          onValueChange: (value: boolean) => {
-            const newMode = value ? 'local' : 'api';
-            toggleAnalysisMode();
-          },
-          subtitle: analysisMode === 'local' ? t('settings.localMode') : t('settings.apiMode'),
         },
       ],
     },

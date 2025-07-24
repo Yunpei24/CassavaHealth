@@ -16,7 +16,6 @@ export interface StoredAnalysis {
 export class StorageService {
   private static readonly ANALYSES_KEY = 'cassava_analyses';
   private static readonly SETTINGS_KEY = 'cassava_settings';
-  private static readonly ANALYSIS_MODE_KEY = 'analysis_mode';
 
   static async saveAnalysis(analysis: Omit<StoredAnalysis, 'id' | 'date' | 'time'>): Promise<void> {
     try {
@@ -87,24 +86,6 @@ export class StorageService {
     } catch (error) {
       console.error('Erreur lors de la récupération des paramètres:', error);
       return {};
-    }
-  }
-
-  static async saveAnalysisMode(mode: 'local' | 'api'): Promise<void> {
-    try {
-      await AsyncStorage.setItem(this.ANALYSIS_MODE_KEY, mode);
-    } catch (error) {
-      console.error('Erreur lors de la sauvegarde du mode d\'analyse:', error);
-    }
-  }
-
-  static async getAnalysisMode(): Promise<'local' | 'api'> {
-    try {
-      const mode = await AsyncStorage.getItem(this.ANALYSIS_MODE_KEY);
-      return (mode as 'local' | 'api') || 'api'; // Par défaut: API
-    } catch (error) {
-      console.error('Erreur lors de la récupération du mode d\'analyse:', error);
-      return 'api';
     }
   }
 }
