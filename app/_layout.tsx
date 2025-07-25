@@ -6,26 +6,24 @@ import i18n from '@/utils/i18n';
 import { Text, View, ActivityIndicator } from 'react-native';
 
 export default function RootLayout() {
-  const [isI18nInitialized, setIsI18nInitialized] = useState(false);
+  const [isI18nInitialized, setIsI18nInitialized] = useState(i18n.isInitialized);
 
   useFrameworkReady();
 
   useEffect(() => {
-    const initI18n = async () => {
-      try {
-        await i18n.init();
-        setIsI18nInitialized(true);
-      } catch (error) {
-        console.error('Failed to initialize i18n:', error);
-        setIsI18nInitialized(true); // Continue anyway
-      }
+    const handleI18nInitialized = () => {
+      setIsI18nInitialized(true);
     };
 
-    if (!i18n.isInitialized) {
-      initI18n();
-    } else {
+    if (i18n.isInitialized) {
       setIsI18nInitialized(true);
+    } else {
+      i18n.on('initialized', handleI18nInitialized);
     }
+
+    return () => {
+      i18n.off('initialized', handleI18nInitialized);
+    };
   }, []);
 
   if (!isI18nInitialized) {
