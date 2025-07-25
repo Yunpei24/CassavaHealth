@@ -4,66 +4,62 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'rea
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Calendar, Clock, TrendingUp, Filter } from 'lucide-react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
+import { SupabaseService, CassavaAnalysis } from '@/components/SupabaseService';
+import { useFocusEffect } from '@react-navigation/native';
 
-interface AnalysisRecord {
-  id: string;
+interface AnalysisRecord extends CassavaAnalysis {
   date: string;
   time: string;
-  disease: string;
-  confidence: number;
-  severity: string;
-  imageUri: string;
 }
 
 export default function HistoryScreen() {
   const { t } = useTranslation();
   const [analyses, setAnalyses] = useState<AnalysisRecord[]>([]);
   const [filterType, setFilterType] = useState<'all' | 'healthy' | 'diseased'>('all');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    // Simuler des données d'historique
-    const mockData: AnalysisRecord[] = [
-      {
-        id: '1',
-        date: '15 Jan 2025',
-        time: '14:30',
-        disease: t('diseases.cassavaMosaicDisease'),
-        confidence: 0.94,
-        severity: t('diseases.severity.moderate'),
-        imageUri: 'https://images.pexels.com/photos/6146970/pexels-photo-6146970.jpeg?auto=compress&cs=tinysrgb&w=400',
-      },
-      {
-        id: '2',
-        date: '14 Jan 2025',
-        time: '09:15',
-        disease: t('diseases.healthy'),
-        confidence: 0.98,
-        severity: 'N/A',
-        imageUri: 'https://images.pexels.com/photos/4750329/pexels-photo-4750329.jpeg?auto=compress&cs=tinysrgb&w=400',
-      },
-      {
-        id: '3',
-        date: '13 Jan 2025',
-        time: '16:45',
-        disease: t('diseases.cassavaBrownStreak'),
-        confidence: 0.87,
-        severity: t('diseases.severity.high'),
-        imageUri: 'https://images.pexels.com/photos/6146970/pexels-photo-6146970.jpeg?auto=compress&cs=tinysrgb&w=400',
-      },
-    ];
-    setAnalyses(mockData);
-  }, []);
+  const loadAnalyses = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const data = await SupabaseService.getAnalyses();
+      
+      // Transform data to include formatted date and time
+      const transformedData: AnalysisRecord[] = data.map(analysis => {
+        const date = new Date(analysis.created_at!);
+        return {
+          ...analysis,
+          date: date.toLocaleDateString('fr-FR'),
+          time: date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+        };
+      });
+      
+      setAnalyses(transformedData);
+    } catch (error) {
+      console.error('Error loading analyses:', error);
+      setError(error instanceof Error ? error.message : 'Erreur de chargement');
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useFocusEffect(
+    React.useCallback(() => {
+      loadAnalyses();
+    }, [])
+  );
   const filteredAnalyses = analyses.filter(analysis => {
     if (filterType === 'all') return true;
-    if (filterType === 'healthy') return analysis.disease === t('diseases.healthy');
-    if (filterType === 'diseased') return analysis.disease !== t('diseases.healthy');
+    if (filterType === 'healthy') return analysis.disease_detected === t('diseases.healthy');
+    if (filterType === 'diseased') return analysis.disease_detected !== t('diseases.healthy');
     return true;
   });
 
   const getDiseaseStats = () => {
     const total = analyses.length;
-    const healthy = analyses.filter(a => a.disease === t('diseases.healthy')).length;
+    const healthy = analyses.filter(a => a.disease_detected === t('diseases.healthy')).length;
     const diseased = total - healthy;
     return { total, healthy, diseased };
   };
@@ -133,13 +129,28 @@ export default function HistoryScreen() {
 
         {/* Analysis Records */}
         <View style={styles.recordsContainer}>
+          {loading && (
+            <View style={styles.loadingContainer}>
+              <Text style={styles.loadingText}>{t('common.loading')}</Text>
+            </View>
+          )}
+          
+          {error && (
+            <View style={styles.errorContainer}>
+              <Text style={styles.errorText}>{error}</Text>
+              <TouchableOpacity style={styles.retryButton} onPress={loadAnalyses}>
+                <Text style={styles.retryButtonText}>{t('common.retry')}</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+          
           {filteredAnalyses.map((analysis, index) => (
             <Animated.View 
-              key={analysis.id}
+              key={analysis.id!}
               entering={FadeInDown.delay(300 + index * 100)}
               style={styles.recordCard}
             >
-              <Image source={{ uri: analysis.imageUri }} style={styles.recordImage} />
+              <Image source={{ uri: analysis.image_url }} style={styles.recordImage} />
               
               <View style={styles.recordContent}>
                 <View style={styles.recordHeader}>
@@ -153,23 +164,23 @@ export default function HistoryScreen() {
 
                 <Text style={[
                   styles.recordDisease,
-                  analysis.disease === t('diseases.healthy') ? styles.healthyText : styles.diseaseText
+                  analysis.disease_detected === t('diseases.healthy') ? styles.healthyText : styles.diseaseText
                 ]}>
-                  {analysis.disease}
+                  {analysis.disease_detected}
                 </Text>
 
                 <View style={styles.recordMetrics}>
                   <Text style={styles.confidenceText}>
-                    {t('camera.confidence')}: {Math.round(analysis.confidence * 100)}%
+                    {t('camera.confidence')}: {Math.round(analysis.confidence_score * 100)}%
                   </Text>
-                  {analysis.severity !== 'N/A' && (
+                  {analysis.severity_level && (
                     <Text style={[
                       styles.severityText,
-                      analysis.severity === t('diseases.severity.high') ? styles.severityHigh :
-                      analysis.severity === t('diseases.severity.moderate') ? styles.severityMedium :
+                      analysis.severity_level === 'high' ? styles.severityHigh :
+                      analysis.severity_level === 'moderate' ? styles.severityMedium :
                       styles.severityLow
                     ]}>
-                      {analysis.severity}
+                      {t(`diseases.severity.${analysis.severity_level}`)}
                     </Text>
                   )}
                 </View>
@@ -178,7 +189,7 @@ export default function HistoryScreen() {
           ))}
         </View>
 
-        {filteredAnalyses.length === 0 && (
+        {!loading && !error && filteredAnalyses.length === 0 && (
           <View style={styles.emptyState}>
             <Calendar size={48} color="#CCCCCC" />
             <Text style={styles.emptyStateText}>{t('history.noAnalysisFound')}</Text>
@@ -375,5 +386,36 @@ const styles = StyleSheet.create({
     color: '#999999',
     marginTop: 8,
     textAlign: 'center',
+  },
+  loadingContainer: {
+    padding: 40,
+    alignItems: 'center',
+  },
+  loadingText: {
+    fontSize: 16,
+    color: '#666666',
+  },
+  errorContainer: {
+    padding: 20,
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    margin: 16,
+    borderRadius: 12,
+  },
+  errorText: {
+    fontSize: 16,
+    color: '#DC2626',
+    textAlign: 'center',
+    marginBottom: 16,
+  },
+  retryButton: {
+    backgroundColor: '#2D5016',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 8,
+  },
+  retryButtonText: {
+    color: '#FFFFFF',
+    fontWeight: '600',
   },
 });

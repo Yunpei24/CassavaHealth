@@ -6,6 +6,7 @@ import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import { Camera, RotateCcw, Image as ImageIcon, X, Check } from 'lucide-react-native';
 import Animated, { FadeIn, SlideInUp } from 'react-native-reanimated';
+import { SupabaseService } from '@/components/SupabaseService';
 
 export default function CameraScreen() {
   const { t } = useTranslation();
@@ -70,13 +71,20 @@ export default function CameraScreen() {
 
     setIsAnalyzing(true);
     try {
-      // Remplacez cette URL par votre endpoint API
-      const API_URL = 'https://votre-api.com/analyze';
+      // Get current user
+      const user = await SupabaseService.getCurrentUser();
+      if (!user) {
+        Alert.alert(t('common.error'), 'Vous devez être connecté pour analyser des images');
+        return;
+      }
+
+      // Upload image to Supabase Storage
+      const imageUrl = await SupabaseService.uploadImage(capturedImage, user.id);
       
-      // Simuler l'appel API pour la démo
+      // Simulate API call for demo (replace with real API)
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      // Résultat simulé - remplacez par votre vraie logique d'API
+      // Mock result - replace with real API logic
       const mockResult = {
         disease: t('diseases.cassavaMosaicDisease'),
         confidence: 0.92,
@@ -88,6 +96,20 @@ export default function CameraScreen() {
           t('diseases.recommendations.regularMonitoring')
         ]
       };
+
+      // Save analysis to Supabase
+      await SupabaseService.saveAnalysis({
+        image_url: imageUrl,
+        disease_detected: mockResult.disease,
+        confidence_score: mockResult.confidence,
+        severity_level: mockResult.severity.toLowerCase(),
+        treatment_recommendation: mockResult.treatment,
+        recommendations: mockResult.recommendations,
+        analysis_metadata: {
+          camera_facing: facing,
+          timestamp: new Date().toISOString(),
+        },
+      });
       
       setAnalysisResult(mockResult);
     } catch (error) {

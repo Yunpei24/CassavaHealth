@@ -1,9 +1,11 @@
 import { Tabs } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Camera, History, Settings, Chrome as Home } from 'lucide-react-native';
+import { useAuth } from '@/components/AuthService';
 
 export default function TabLayout() {
   const { t } = useTranslation();
+  const { user } = useAuth();
 
   return (
     <Tabs
@@ -60,6 +62,17 @@ export default function TabLayout() {
           ),
         }}
       />
+      {!user && (
+        <Tabs.Screen
+          name="auth"
+          options={{
+            title: 'Connexion',
+            tabBarIcon: ({ size, color }) => (
+              <User size={size} color={color} />
+            ),
+          }}
+        />
+      )}
     </Tabs>
   );
 }
