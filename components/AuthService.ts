@@ -1,6 +1,7 @@
 import { SupabaseService } from './SupabaseService';
 import { useState, useEffect } from 'react';
 
+  loading: boolean;
 export interface User {
   id: string;
   email: string;
@@ -9,11 +10,13 @@ export interface User {
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Get initial session
     const getInitialSession = async () => {
       try {
+      setLoading(false);
         const currentUser = await SupabaseService.getCurrentUser();
         setUser(currentUser ? {
           id: currentUser.id,
@@ -41,6 +44,7 @@ export function useAuth() {
     return () => subscription.unsubscribe();
   }, []);
 
+      setLoading(false);
   const signUp = async (email: string, password: string) => {
     await SupabaseService.signUp(email, password);
   };
@@ -53,6 +57,7 @@ export function useAuth() {
     await SupabaseService.signOut();
   };
 
+      loading,
   return {
     user,
     loading,

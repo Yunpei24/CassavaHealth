@@ -1,65 +1,68 @@
 import { Tabs } from 'expo-router';
 import { Chrome as Home, Camera, History, Settings, User } from 'lucide-react-native';
+import { AuthProvider } from '@/components/AuthService';
 
-export default function TabLayout() {
-  return (
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: '#2D5016',
-        tabBarInactiveTintColor: '#666666',
-        tabBarStyle: {
-          backgroundColor: '#ffffff',
-          borderTopWidth: 1,
-          borderTopColor: '#e0e0e0',
-        },
-      }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Accueil',
-          tabBarIcon: ({ size, color }) => (
-            <Home size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="camera"
-        options={{
-          title: 'Caméra',
-          tabBarIcon: ({ size, color }) => (
-            <Camera size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="history"
-        options={{
-          title: 'Historique',
-          tabBarIcon: ({ size, color }) => (
-            <History size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="settings"
-        options={{
-          title: 'Paramètres',
-          tabBarIcon: ({ size, color }) => (
-            <Settings size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="auth"
-        options={{
-          title: 'Connexion',
-          href: null,
-          tabBarIcon: ({ size, color }) => (
-            <User size={size} color={color} />
-          ),
-        }}
-      />
-    </Tabs>
+    <AuthProvider>
+      <Tabs
+        screenOptions={{
+          headerShown: false,
+          tabBarStyle: {
+            backgroundColor: '#2D5016',
+            borderTopColor: '#4A7C59',
+            height: 60,
+            paddingBottom: 8,
+            paddingTop: 8,
+          },
+          tabBarActiveTintColor: '#FFFFFF',
+          tabBarInactiveTintColor: '#A0A0A0',
+        }}>
+        <Tabs.Screen
+          name="index"
+          options={{
+            title: 'Accueil',
+            tabBarIcon: ({ color, size }) => (
+              <Home color={color} size={size} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="camera"
+          options={{
+            title: 'Caméra',
+            tabBarIcon: ({ color, size }) => (
+              <Camera color={color} size={size} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="history"
+          options={{
+            title: 'Historique',
+            tabBarIcon: ({ color, size }) => (
+              <History color={color} size={size} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="settings"
+          options={{
+            title: 'Paramètres',
+            tabBarIcon: ({ color, size }) => (
+              <Settings color={color} size={size} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="auth"
+          options={{
+            href: null,
+            title: 'Connexion',
+            tabBarIcon: ({ color, size }) => (
+              <User color={color} size={size} />
+            ),
+          }}
+        />
+      </Tabs>
+    </AuthProvider>
   );
 }
