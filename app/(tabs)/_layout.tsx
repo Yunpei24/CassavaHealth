@@ -2,6 +2,8 @@ import { Tabs } from 'expo-router';
 import { Chrome as Home, Camera, History, Settings, User } from 'lucide-react-native';
 import { AuthProvider } from '@/components/AuthService';
 
+export default function TabLayout() {
+  return (
     <AuthProvider>
       <Tabs
         screenOptions={{
