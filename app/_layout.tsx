@@ -6,7 +6,7 @@ import i18n from '@/utils/i18n';
 import { Text, View, ActivityIndicator } from 'react-native';
 
 export default function RootLayout() {
-  const [isI18nInitialized, setIsI18nInitialized] = useState(i18n.isInitialized);
+  const [isI18nInitialized, setIsI18nInitialized] = useState(false);
 
   useFrameworkReady();
 
@@ -38,6 +38,7 @@ export default function RootLayout() {
   return (
     <>
       <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="+not-found" />
       </Stack>
       <StatusBar style="auto" />

@@ -1,46 +1,65 @@
-import { useEffect, useState } from 'react';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import { useFrameworkReady } from '@/hooks/useFrameworkReady';
-import i18n from '@/utils/i18n';
-import { Text, View, ActivityIndicator } from 'react-native';
+import { Tabs } from 'expo-router';
+import { Home, Camera, History, Settings, User } from 'lucide-react-native';
 
-export default function RootLayout() {
-  const [isI18nInitialized, setIsI18nInitialized] = useState(i18n.isInitialized);
-
-  useFrameworkReady();
-
-  useEffect(() => {
-    const handleI18nInitialized = () => {
-      setIsI18nInitialized(true);
-    };
-
-    if (i18n.isInitialized) {
-      setIsI18nInitialized(true);
-    } else {
-      i18n.on('initialized', handleI18nInitialized);
-    }
-
-    return () => {
-      i18n.off('initialized', handleI18nInitialized);
-    };
-  }, []);
-
-  if (!isI18nInitialized) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color="#2D5016" />
-        <Text style={{ marginTop: 16, color: '#666666' }}>Loading...</Text>
-      </View>
-    );
-  }
-
+export default function TabLayout() {
   return (
-    <>
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </>
+    <Tabs
+      screenOptions={{
+        headerShown: false,
+        tabBarActiveTintColor: '#2D5016',
+        tabBarInactiveTintColor: '#666666',
+        tabBarStyle: {
+          backgroundColor: '#ffffff',
+          borderTopWidth: 1,
+          borderTopColor: '#e0e0e0',
+        },
+      }}>
+      <Tabs.Screen
+        name="index"
+        options={{
+          title: 'Accueil',
+          tabBarIcon: ({ size, color }) => (
+            <Home size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="camera"
+        options={{
+          title: 'Caméra',
+          tabBarIcon: ({ size, color }) => (
+            <Camera size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="history"
+        options={{
+          title: 'Historique',
+          tabBarIcon: ({ size, color }) => (
+            <History size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="settings"
+        options={{
+          title: 'Paramètres',
+          tabBarIcon: ({ size, color }) => (
+            <Settings size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="auth"
+        options={{
+          title: 'Connexion',
+          href: null,
+          tabBarIcon: ({ size, color }) => (
+            <User size={size} color={color} />
+          ),
+        }}
+      />
+    </Tabs>
   );
 }
