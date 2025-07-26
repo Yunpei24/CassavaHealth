@@ -208,7 +208,7 @@ export class SupabaseService {
   static async getCurrentUser() {
     const { data: { user }, error } = await supabase.auth.getUser();
     if (error) {
-      throw new Error(error.message);
+      return null;
     }
     return user;
   }
