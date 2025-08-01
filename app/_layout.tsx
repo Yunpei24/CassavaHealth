@@ -2,17 +2,25 @@ import { useEffect, useState } from 'react';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useFrameworkReady } from '@/hooks/useFrameworkReady';
-import { useAuth } from '@/components/AuthService';
+import { useAuth, AuthProvider } from '@/components/AuthService';
 import i18n from '@/utils/i18n';
 import { Text, View, ActivityIndicator } from 'react-native';
 
 export default function RootLayout() {
+  useFrameworkReady();
+
+  return (
+    <AuthProvider>
+      <RootLayoutContent />
+    </AuthProvider>
+  );
+}
+
+function RootLayoutContent() {
   const [isI18nInitialized, setIsI18nInitialized] = useState(false);
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const segments = useSegments();
-
-  useFrameworkReady();
 
   useEffect(() => {
     const handleI18nInitialized = () => {
