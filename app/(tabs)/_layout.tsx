@@ -1,18 +1,21 @@
 import { Tabs } from 'expo-router';
 import { Chrome as Home, Camera, History, Settings, User } from 'lucide-react-native';
+import { useAuth } from '@/components/AuthService';
 
 export default function TabLayout() {
+  const { user } = useAuth();
+
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarStyle: {
+        tabBarStyle: user ? {
           backgroundColor: '#2D5016',
           borderTopColor: '#4A7C59',
           height: 60,
           paddingBottom: 8,
           paddingTop: 8,
-        },
+        } : { display: 'none' },
         tabBarActiveTintColor: '#FFFFFF',
         tabBarInactiveTintColor: '#A0A0A0',
       }}>
