@@ -6,10 +6,12 @@ import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import { Camera, RotateCcw, Image as ImageIcon, X, Check } from 'lucide-react-native';
 import Animated, { FadeIn, SlideInUp } from 'react-native-reanimated';
-import { SupabaseService } from '@/components/SupabaseService';
+import { hybridService } from '@/components/HybridService';
+import { useAuth } from '@/components/AuthService';
 
 export default function CameraScreen() {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const [facing, setFacing] = useState<CameraType>('back');
   const [permission, requestPermission] = useCameraPermissions();
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
@@ -69,50 +71,31 @@ export default function CameraScreen() {
   const analyzeImage = async () => {
     if (!capturedImage) return;
 
+    if (!user) {
+      Alert.alert(t('common.error'), 'Vous devez être connecté pour analyser des images');
+      return;
+    }
+
     setIsAnalyzing(true);
     try {
-      // Get current user
-      const user = await SupabaseService.getCurrentUser();
-      if (!user) {
-        Alert.alert(t('common.error'), 'Vous devez être connecté pour analyser des images');
-        return;
-      }
-
-      // Upload image to Supabase Storage
-      const imageUrl = await SupabaseService.uploadImage(capturedImage, user.id);
-      
-      // Simulate API call for demo (replace with real API)
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Mock result - replace with real API logic
-      const mockResult = {
-        disease: t('diseases.cassavaMosaicDisease'),
-        confidence: 0.92,
-        severity: t('diseases.severity.moderate'),
-        treatment: t('diseases.treatments.cassavaMosaicDisease'),
-        recommendations: [
-          t('diseases.recommendations.isolate'),
-          t('diseases.recommendations.preventiveTreatment'),
-          t('diseases.recommendations.regularMonitoring')
-        ]
-      };
-
-      // Save analysis to Supabase
-      await SupabaseService.saveAnalysis({
-        image_url: imageUrl,
-        disease_detected: mockResult.disease,
-        confidence_score: mockResult.confidence,
-        severity_level: mockResult.severity.toLowerCase(),
-        treatment_recommendation: mockResult.treatment,
-        recommendations: mockResult.recommendations,
-        analysis_metadata: {
-          camera_facing: facing,
-          timestamp: new Date().toISOString(),
-        },
+      // Use hybrid service for analysis
+      const result = await hybridService.analyzeImage({
+        imageUri: capturedImage,
+        userId: user.id,
       });
       
-      setAnalysisResult(mockResult);
+      // Transform result for UI
+      const uiResult = {
+        disease: result.disease,
+        confidence: result.confidence,
+        severity: result.severity,
+        treatment: result.treatment,
+        recommendations: result.recommendations,
+      };
+      
+      setAnalysisResult(uiResult);
     } catch (error) {
+      console.error('Analysis error:', error);
       Alert.alert(t('common.error'), t('camera.errorAnalyzing'));
     } finally {
       setIsAnalyzing(false);

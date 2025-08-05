@@ -5,9 +5,24 @@ import { useFrameworkReady } from '@/hooks/useFrameworkReady';
 import { useAuth, AuthProvider } from '@/components/AuthService';
 import i18n from '@/utils/i18n';
 import { Text, View, ActivityIndicator } from 'react-native';
+import { hybridService } from '@/components/HybridService';
 
 export default function RootLayout() {
   useFrameworkReady();
+  
+  // Initialize hybrid service
+  React.useEffect(() => {
+    const initializeServices = async () => {
+      try {
+        await hybridService.initialize();
+        console.log('Hybrid service initialized');
+      } catch (error) {
+        console.error('Failed to initialize hybrid service:', error);
+      }
+    };
+    
+    initializeServices();
+  }, []);
 
   return (
     <AuthProvider>

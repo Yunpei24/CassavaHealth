@@ -4,16 +4,26 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'rea
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Calendar, Clock, TrendingUp, Filter } from 'lucide-react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
-import { SupabaseService, CassavaAnalysis } from '@/components/SupabaseService';
+import { hybridService } from '@/components/HybridService';
+import { useAuth } from '@/components/AuthService';
 import { useFocusEffect } from '@react-navigation/native';
 
-interface AnalysisRecord extends CassavaAnalysis {
+interface AnalysisRecord {
+  id: string;
+  disease_detected: string;
+  confidence_score: number;
+  severity_level?: string;
+  image_url?: string;
+  image_uri?: string;
+  created_at?: string;
+  isOffline: boolean;
   date: string;
   time: string;
 }
 
 export default function HistoryScreen() {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const [analyses, setAnalyses] = useState<AnalysisRecord[]>([]);
   const [filterType, setFilterType] = useState<'all' | 'healthy' | 'diseased'>('all');
   const [loading, setLoading] = useState(true);
@@ -21,14 +31,19 @@ export default function HistoryScreen() {
 
   const loadAnalyses = async () => {
     try {
+      if (!user) {
+        setAnalyses([]);
+        return;
+      }
+
       setLoading(true);
       setError(null);
       
-      const data = await SupabaseService.getAnalyses();
+      const data = await hybridService.getAnalyses(user.id);
       
       // Transform data to include formatted date and time
       const transformedData: AnalysisRecord[] = data.map(analysis => {
-        const date = new Date(analysis.created_at!);
+        const date = new Date(analysis.created_at || analysis.created_at);
         return {
           ...analysis,
           date: date.toLocaleDateString('fr-FR'),
@@ -148,9 +163,12 @@ export default function HistoryScreen() {
             <Animated.View 
               key={analysis.id!}
               entering={FadeInDown.delay(300 + index * 100)}
-              style={styles.recordCard}
+              style={[styles.recordCard, analysis.isOffline && styles.offlineCard]}
             >
-              <Image source={{ uri: analysis.image_url }} style={styles.recordImage} />
+              <Image 
+                source={{ uri: analysis.image_url || analysis.image_uri }} 
+                style={styles.recordImage} 
+              />
               
               <View style={styles.recordContent}>
                 <View style={styles.recordHeader}>
@@ -160,6 +178,9 @@ export default function HistoryScreen() {
                   <Text style={styles.recordTime}>
                     <Clock size={14} color="#666666" /> {analysis.time}
                   </Text>
+                  {analysis.isOffline && (
+                    <Text style={styles.offlineIndicator}>Hors ligne</Text>
+                  )}
                 </View>
 
                 <Text style={[
@@ -370,6 +391,19 @@ const styles = StyleSheet.create({
   },
   severityLow: {
     color: '#1F7A1F',
+  },
+  offlineCard: {
+    borderLeftWidth: 4,
+    borderLeftColor: '#E07A3F',
+  },
+  offlineIndicator: {
+    fontSize: 10,
+    color: '#E07A3F',
+    fontWeight: '600',
+    backgroundColor: '#E07A3F15',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
   },
   emptyState: {
     alignItems: 'center',
