@@ -6,6 +6,9 @@ import { useAuth, AuthProvider } from '@/components/AuthService';
 import i18n from '@/utils/i18n';
 import { Text, View, ActivityIndicator } from 'react-native';
 import { hybridService } from '@/components/HybridService';
+import * as tf from '@tensorflow/tfjs';
+import '@tensorflow/tfjs-react-native';
+import '@tensorflow/tfjs-platform-react-native';
 
 export default function RootLayout() {
   useFrameworkReady();
@@ -14,6 +17,11 @@ export default function RootLayout() {
   React.useEffect(() => {
     const initializeServices = async () => {
       try {
+        // Initialize TensorFlow.js first
+        console.log('Initializing TensorFlow.js...');
+        await tf.ready();
+        console.log('TensorFlow.js ready');
+        
         await hybridService.initialize();
         console.log('Hybrid service initialized');
       } catch (error) {

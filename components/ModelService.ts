@@ -1,6 +1,7 @@
 import * as tf from '@tensorflow/tfjs';
 import '@tensorflow/tfjs-react-native';
 import '@tensorflow/tfjs-platform-react-native';
+import '@tensorflow/tfjs-platform-react-native';
 import * as FileSystem from 'expo-file-system';
 import { Asset } from 'expo-asset';
 
