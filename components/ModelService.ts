@@ -180,7 +180,7 @@ export class ModelService {
       const imageData = await response.arrayBuffer();
       
       // Decode image
-      const imageTensor = tf.node.decodeImage(new Uint8Array(imageData), 3);
+      const imageTensor = tf.decodeImage(new Uint8Array(imageData), 3);
       
       // Resize to model input size (usually 224x224)
       const inputSize = this.modelInfo?.input_size || [224, 224, 3];
