@@ -137,15 +137,7 @@ export class ModelService {
           // Fallback: Load from assets
           console.log('Loading labels from assets...');
           try {
-            const labelsAsset = Asset.fromModule(require('../assets/models/labels.json'));
-            await labelsAsset.downloadAsync();
-            
-            if (labelsAsset.localUri) {
-              const labelsContent = await FileSystem.readAsStringAsync(labelsAsset.localUri);
-              labelsData = JSON.parse(labelsContent);
-            } else {
-              throw new Error('Could not load labels from assets');
-            }
+            labelsData = require('../assets/models/labels.json');
           } catch (error) {
             console.warn('Could not load labels from assets, using fallback...');
             this.setFallbackLabels();
