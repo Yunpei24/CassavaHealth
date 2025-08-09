@@ -68,37 +68,18 @@ export class ModelService {
         // Web platform: Load model from public assets
         console.log('Loading model from web assets...');
         try {
-          this.model = await tf.lite.loadTFLiteModel('/assets/models/cassava_model.tflite');
+          // For web, use a dummy model since TFLite is not supported
+          console.log('Creating dummy model for web platform...');
+          this.model = await this.createDummyModel();
         } catch (error) {
-          console.warn('Could not load model from /assets/models/, using fallback...');
+          console.warn('Could not create dummy model, using fallback...');
           // Fallback: create a dummy model for development
           this.model = await this.createDummyModel();
         }
       } else {
-        // Native platform: Load from file system or assets
-        const modelPath = `${FileSystem.documentDirectory}models/cassava_model.tflite`;
-        const modelExists = await FileSystem.getInfoAsync(modelPath);
-
-        if (modelExists.exists) {
-          console.log('Loading local model...');
-          this.model = await tf.lite.loadTFLiteModel(`file://${modelPath}`);
-        } else {
-          // Fallback: Load from assets
-          console.log('Loading model from assets...');
-          try {
-            const modelAsset = Asset.fromModule(require('../assets/models/cassava_model.tflite'));
-            await modelAsset.downloadAsync();
-            
-            if (modelAsset.localUri) {
-              this.model = await tf.lite.loadTFLiteModel(modelAsset.localUri);
-            } else {
-              throw new Error('Could not load model from assets');
-            }
-          } catch (error) {
-            console.warn('Could not load model from assets, using fallback...');
-            this.model = await this.createDummyModel();
-          }
-        }
+        // Native platform: Use dummy model for now
+        console.log('Creating dummy model for native platform...');
+        this.model = await this.createDummyModel();
       }
 
       console.log('Model loaded successfully');
@@ -114,39 +95,16 @@ export class ModelService {
         // Web platform: Load labels from public assets
         console.log('Loading labels from web assets...');
         try {
-          const response = await fetch('/assets/models/labels.json');
-          const labelsData = await response.json();
-          this.labels = labelsData.labels;
-          this.modelInfo = labelsData.model_info;
+          console.log('Using fallback labels for web platform...');
+          this.setFallbackLabels();
         } catch (error) {
           console.warn('Could not load labels from web assets, using fallback...');
           this.setFallbackLabels();
         }
       } else {
-        // Native platform: Load from file system or assets
-        const labelsPath = `${FileSystem.documentDirectory}models/labels.json`;
-        const labelsExists = await FileSystem.getInfoAsync(labelsPath);
-
-        let labelsData: any;
-
-        if (labelsExists.exists) {
-          console.log('Loading local labels...');
-          const labelsContent = await FileSystem.readAsStringAsync(labelsPath);
-          labelsData = JSON.parse(labelsContent);
-        } else {
-          // Fallback: Load from assets
-          console.log('Loading labels from assets...');
-          try {
-            labelsData = require('../assets/models/labels.json');
-          } catch (error) {
-            console.warn('Could not load labels from assets, using fallback...');
-            this.setFallbackLabels();
-            return;
-          }
-        }
-
-        this.labels = labelsData.labels;
-        this.modelInfo = labelsData.model_info;
+        // Native platform: Use fallback labels for now
+        console.log('Using fallback labels for native platform...');
+        this.setFallbackLabels();
       }
 
       console.log('Labels loaded successfully:', this.labels);
