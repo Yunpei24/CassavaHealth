@@ -28,7 +28,7 @@ export interface ModelInfo {
 
 export class ModelService {
   private static instance: ModelService;
-  private model: tf.LayersModel | null = null;
+  private model: any | null = null;
   private labels: string[] = [];
   private modelInfo: ModelInfo | null = null;
   private isInitialized = false;
@@ -68,7 +68,7 @@ export class ModelService {
         // Web platform: Load model from public assets
         console.log('Loading model from web assets...');
         try {
-          this.model = await tf.loadLayersModel('/assets/models/model.json');
+          this.model = await tf.lite.loadTFLiteModel('/assets/models/cassava_model.tflite');
         } catch (error) {
           console.warn('Could not load model from /assets/models/, using fallback...');
           // Fallback: create a dummy model for development
@@ -76,21 +76,21 @@ export class ModelService {
         }
       } else {
         // Native platform: Load from file system or assets
-        const modelPath = `${FileSystem.documentDirectory}models/cassava_model/model.json`;
+        const modelPath = `${FileSystem.documentDirectory}models/cassava_model.tflite`;
         const modelExists = await FileSystem.getInfoAsync(modelPath);
 
         if (modelExists.exists) {
           console.log('Loading local model...');
-          this.model = await tf.loadLayersModel(`file://${modelPath}`);
+          this.model = await tf.lite.loadTFLiteModel(`file://${modelPath}`);
         } else {
           // Fallback: Load from assets
           console.log('Loading model from assets...');
           try {
-            const modelAsset = Asset.fromModule(require('../assets/models/model.json'));
+            const modelAsset = Asset.fromModule(require('../assets/models/cassava_model.tflite'));
             await modelAsset.downloadAsync();
             
             if (modelAsset.localUri) {
-              this.model = await tf.loadLayersModel(modelAsset.localUri);
+              this.model = await tf.lite.loadTFLiteModel(modelAsset.localUri);
             } else {
               throw new Error('Could not load model from assets');
             }
@@ -198,7 +198,7 @@ export class ModelService {
       const tensor = await this.preprocessImage(imageUri);
       
       // Make prediction
-      const prediction = this.model.predict(tensor) as tf.Tensor;
+      const prediction = this.model.predict(tensor);
       const probabilities = await prediction.data();
       
       // Get the class with highest probability
