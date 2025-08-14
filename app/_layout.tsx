@@ -9,6 +9,7 @@ import { Text, View, ActivityIndicator } from 'react-native';
 import { hybridService } from '@/components/HybridService';
 import * as tf from '@tensorflow/tfjs';
 import '@tensorflow/tfjs-react-native';
+import { supabaseConfigService } from '@/components/SupabaseConfigService';
 
 export default function RootLayout() {
   useFrameworkReady();
@@ -24,6 +25,10 @@ export default function RootLayout() {
         
         await hybridService.initialize();
         console.log('Hybrid service initialized');
+        
+        // Initialize Supabase configuration service
+        await supabaseConfigService.initialize();
+        console.log('Supabase config service initialized');
       } catch (error) {
         console.error('Failed to initialize hybrid service:', error);
       }

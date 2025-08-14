@@ -4,12 +4,54 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Switch, Alert } f
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Settings, Bell, Shield, CircleHelp as HelpCircle, Info, ChevronRight, Globe, Camera } from 'lucide-react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
+import { supabaseConfigService, SupabaseConfig } from '@/components/SupabaseConfigService';
 
 export default function SettingsScreen() {
   const { t, i18n } = useTranslation();
   const [notifications, setNotifications] = useState(true);
   const [autoSave, setAutoSave] = useState(true);
   const [highQuality, setHighQuality] = useState(false);
+  const [currentSupabaseConfig, setCurrentSupabaseConfig] = useState<SupabaseConfig | null>(null);
+  const [availableConfigs, setAvailableConfigs] = useState<SupabaseConfig[]>([]);
+
+  React.useEffect(() => {
+    loadSupabaseConfigs();
+  }, []);
+
+  const loadSupabaseConfigs = async () => {
+    try {
+      const current = supabaseConfigService.getCurrentConfig();
+      const available = await supabaseConfigService.getAvailableConfigs();
+      setCurrentSupabaseConfig(current);
+      setAvailableConfigs(available);
+    } catch (error) {
+      console.error('Error loading Supabase configs:', error);
+    }
+  };
+
+  const switchSupabaseConfig = async () => {
+    Alert.alert(
+      'Configuration Supabase',
+      'Choisissez votre configuration Supabase',
+      availableConfigs.map(config => ({
+        text: `${config.name} (${config.mode})`,
+        onPress: async () => {
+          try {
+            await supabaseConfigService.switchToConfig(config);
+            setCurrentSupabaseConfig(config);
+            Alert.alert('Succès', `Basculé vers ${config.name}`);
+          } catch (error) {
+            Alert.alert('Erreur', 'Impossible de changer de configuration');
+          }
+        }
+      })).concat([
+        {
+          text: 'Annuler',
+          style: 'cancel'
+        }
+      ])
+    );
+  };
 
   const changeLanguage = async () => {
     const currentLang = i18n.language;
@@ -73,6 +115,13 @@ export default function SettingsScreen() {
           type: 'navigation',
           value: getCurrentLanguage(),
           action: changeLanguage,
+        },
+        {
+          icon: Shield,
+          label: 'Configuration Supabase',
+          type: 'navigation',
+          value: currentSupabaseConfig ? `${currentSupabaseConfig.name} (${currentSupabaseConfig.mode})` : 'Non configuré',
+          action: switchSupabaseConfig,
         },
         {
           icon: HelpCircle,

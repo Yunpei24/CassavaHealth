@@ -1,11 +1,12 @@
 import { createClient } from '@supabase/supabase-js';
 import * as FileSystem from 'expo-file-system';
 import { decode } from 'base64-arraybuffer';
+import { supabaseConfigService } from './SupabaseConfigService';
 
-const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!;
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Fonction utilitaire pour obtenir le client Supabase actuel
+const getSupabaseClient = () => {
+  return supabaseConfigService.getClient();
+};
 
 export interface CassavaAnalysis {
   id?: string;
@@ -24,6 +25,8 @@ export interface CassavaAnalysis {
 export class SupabaseService {
   static async uploadImage(imageUri: string, userId: string): Promise<string> {
     try {
+      const supabase = getSupabaseClient();
+      
       // Read the image file
       const base64 = await FileSystem.readAsStringAsync(imageUri, {
         encoding: FileSystem.EncodingType.Base64,
@@ -62,6 +65,8 @@ export class SupabaseService {
 
   static async saveAnalysis(analysis: Omit<CassavaAnalysis, 'id' | 'user_id' | 'created_at' | 'updated_at'>): Promise<CassavaAnalysis> {
     try {
+      const supabase = getSupabaseClient();
+      
       // Get current user
       const { data: { user }, error: userError } = await supabase.auth.getUser();
       
@@ -93,6 +98,8 @@ export class SupabaseService {
 
   static async getAnalyses(): Promise<CassavaAnalysis[]> {
     try {
+      const supabase = getSupabaseClient();
+      
       // Get current user
       const { data: { user }, error: userError } = await supabase.auth.getUser();
       
@@ -121,6 +128,8 @@ export class SupabaseService {
 
   static async deleteAnalysis(id: string): Promise<void> {
     try {
+      const supabase = getSupabaseClient();
+      
       // Get current user
       const { data: { user }, error: userError } = await supabase.auth.getUser();
       
@@ -174,6 +183,7 @@ export class SupabaseService {
   }
 
   static async signUp(email: string, password: string): Promise<void> {
+    const supabase = getSupabaseClient();
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -188,6 +198,7 @@ export class SupabaseService {
   }
 
   static async signIn(email: string, password: string): Promise<void> {
+    const supabase = getSupabaseClient();
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -199,6 +210,7 @@ export class SupabaseService {
   }
 
   static async signOut(): Promise<void> {
+    const supabase = getSupabaseClient();
     const { error } = await supabase.auth.signOut();
     if (error) {
       throw new Error(error.message);
@@ -206,6 +218,7 @@ export class SupabaseService {
   }
 
   static async getCurrentUser() {
+    const supabase = getSupabaseClient();
     const { data: { user }, error } = await supabase.auth.getUser();
     if (error) {
       return null;
@@ -214,6 +227,7 @@ export class SupabaseService {
   }
 
   static onAuthStateChange(callback: (user: any) => void) {
+    const supabase = getSupabaseClient();
     return supabase.auth.onAuthStateChange((event, session) => {
       callback(session?.user || null);
     });

@@ -138,26 +138,84 @@ npm install @tensorflow/tfjs @tensorflow/tfjs-react-native @tensorflow/tfjs-plat
 2. Créez un nouveau projet
 3. Notez l'URL et la clé API
 
+#### Importer le Schéma de Base de Données
+
+1. Dans votre dashboard Supabase, allez dans l'éditeur SQL
+2. Copiez le contenu du fichier `database/schema.sql`
+3. Collez-le dans l'éditeur et exécutez le script
+4. Vérifiez que la table `cassava_analyses` et les politiques RLS sont créées
+
 #### Configuration des Variables d'Environnement
 
-Créez le fichier `.env` :
+Copiez le fichier `.env.example` vers `.env` et configurez vos valeurs :
 
 ```bash
-touch .env
+cp .env.example .env
 ```
 
-Contenu du fichier `.env` :
+Éditez le fichier `.env` avec vos vraies valeurs :
 
 ```env
+# Configuration Supabase Cloud
+EXPO_PUBLIC_SUPABASE_MODE=cloud
 EXPO_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 EXPO_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-EXPO_PUBLIC_API_URL=https://your-api-endpoint.com
-EXPO_PUBLIC_API_KEY=your-api-key
+
+# Configuration Supabase Self-hosted (optionnel)
+EXPO_PUBLIC_SUPABASE_SELF_HOSTED_URL=https://your-selfhosted-supabase.com
+EXPO_PUBLIC_SUPABASE_SELF_HOSTED_ANON_KEY=your-selfhosted-anon-key
 ```
 
-#### Exécuter les Migrations
+### 2. Configuration Supabase Self-hosted (Optionnel)
 
-Les migrations sont dans `supabase/migrations/`. Elles seront appliquées automatiquement.
+#### Déployer Supabase Self-hosted
+
+1. Suivez la [documentation officielle Supabase](https://supabase.com/docs/guides/self-hosting) pour déployer votre instance
+2. Configurez PostgreSQL et les services Supabase
+3. Importez le schéma avec le fichier `database/schema.sql`
+4. Configurez les variables d'environnement pour pointer vers votre instance
+
+#### Basculer entre Cloud et Self-hosted
+
+**Via les variables d'environnement :**
+```env
+# Pour utiliser Supabase Cloud
+EXPO_PUBLIC_SUPABASE_MODE=cloud
+
+# Pour utiliser Supabase Self-hosted
+EXPO_PUBLIC_SUPABASE_MODE=self-hosted
+```
+
+**Via l'interface de l'application :**
+1. Allez dans Paramètres > Configuration Supabase
+2. Sélectionnez la configuration désirée
+3. L'application basculera automatiquement
+
+### 3. Schéma de Base de Données
+
+Le fichier `database/schema.sql` contient :
+- **Table `cassava_analyses`** : Stockage des analyses
+- **Politiques RLS** : Sécurité au niveau des lignes
+- **Storage policies** : Gestion des images
+- **Indexes** : Optimisation des performances
+- **Fonctions utiles** : Statistiques et vues
+
+**Structure principale :**
+```sql
+CREATE TABLE cassava_analyses (
+    id uuid PRIMARY KEY,
+    user_id uuid REFERENCES auth.users(id),
+    image_url text NOT NULL,
+    disease_detected text NOT NULL,
+    confidence_score numeric(3,2),
+    severity_level text,
+    treatment_recommendation text,
+    recommendations jsonb,
+    analysis_metadata jsonb,
+    created_at timestamptz,
+    updated_at timestamptz
+);
+```
 
 ### 2. Configuration SQLite (Mode Offline)
 
