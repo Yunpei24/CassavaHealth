@@ -118,10 +118,22 @@ export default function SettingsScreen() {
         },
         {
           icon: Shield,
-          label: 'Configuration Supabase',
+          label: 'Supabase Configuration',
           type: 'navigation',
           value: currentSupabaseConfig ? `${currentSupabaseConfig.name} (${currentSupabaseConfig.mode})` : 'Non configuré',
           action: switchSupabaseConfig,
+        },
+        {
+          icon: Settings,
+          label: 'API Configuration',
+          type: 'navigation',
+          value: process.env.EXPO_PUBLIC_API_URL || 'localhost:8000',
+          action: () => {
+            Alert.alert(
+              'API Configuration',
+              `FastAPI URL: ${process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8000'}\n\nPour changer l'URL, modifiez EXPO_PUBLIC_API_URL dans votre fichier .env`
+            );
+          },
         },
         {
           icon: HelpCircle,

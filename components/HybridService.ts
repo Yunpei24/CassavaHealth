@@ -1,6 +1,6 @@
 import { SupabaseService } from './SupabaseService';
 import { OfflineService, offlineService } from './OfflineService';
-import { ModelService, modelService } from './ModelService';
+import { apiService } from './ApiService';
 import * as Network from 'expo-network';
 
 export interface AnalysisRequest {
@@ -38,9 +38,6 @@ export class HybridService {
       // Initialize offline service
       await offlineService.initialize();
       
-      // Initialize model service
-      await modelService.initialize();
-      
       this.isInitialized = true;
       console.log('Hybrid service initialized successfully');
       
@@ -60,19 +57,12 @@ export class HybridService {
     try {
       const isOnline = await this.isOnline();
       
-      if (isOnline && modelService.isModelReady()) {
-        // Use local model for analysis
-        return await this.analyzeWithLocalModel(request);
-      } else if (isOnline) {
-        // Fallback to online API
-        return await this.analyzeWithOnlineAPI(request);
+      if (isOnline) {
+        // Use FastAPI for analysis
+        return await this.analyzeWithFastAPI(request);
       } else {
-        // Offline mode with local model
-        if (modelService.isModelReady()) {
-          return await this.analyzeWithLocalModel(request);
-        } else {
-          throw new Error('No internet connection and local model not available');
-        }
+        // Offline mode - save for later sync
+        throw new Error('No internet connection. Analysis requires online connection to FastAPI server.');
       }
     } catch (error) {
       console.error('Error analyzing image:', error);
@@ -80,25 +70,57 @@ export class HybridService {
     }
   }
 
-  private async analyzeWithLocalModel(request: AnalysisRequest): Promise<AnalysisResult> {
+  private async analyzeWithFastAPI(request: AnalysisRequest): Promise<AnalysisResult> {
     try {
-      console.log('Analyzing with local model...');
+      console.log('Analyzing with FastAPI...');
       
-      // Use local AI model
-      const prediction = await modelService.predictFromImage(request.imageUri);
+      // Use FastAPI service
+      const prediction = await apiService.analyzeImage(request);
       
-      // Save to local database
+      // Upload image to Supabase
+      const imageUrl = await SupabaseService.uploadImage(request.imageUri, request.userId);
+      
+      // Save to Supabase
       const analysisData = {
-        user_id: request.userId,
-        image_uri: request.imageUri,
+        image_url: imageUrl,
         disease_detected: prediction.disease,
         confidence_score: prediction.confidence,
         severity_level: prediction.severity,
         treatment_recommendation: prediction.treatment,
         recommendations: prediction.recommendations,
         analysis_metadata: {
-          model_version: modelService.getModelInfo()?.version || '1.0.0',
-          analysis_type: 'local',
+          analysis_type: 'fastapi',
+          api_timestamp: prediction.timestamp,
+          timestamp: new Date().toISOString(),
+        },
+      };
+
+      const savedAnalysis = await SupabaseService.saveAnalysis(analysisData);
+
+      return {
+        id: savedAnalysis.id!,
+        disease: prediction.disease,
+        confidence: prediction.confidence,
+        severity: prediction.severity,
+        treatment: prediction.treatment,
+        recommendations: prediction.recommendations,
+        isOffline: false,
+      };
+    } catch (error) {
+      console.error('Error with FastAPI analysis:', error);
+      
+      // Fallback: save offline for later sync
+      const analysisData = {
+        user_id: request.userId,
+        image_uri: request.imageUri,
+        disease_detected: 'Analysis Failed',
+        confidence_score: 0,
+        severity_level: 'unknown',
+        treatment_recommendation: 'Retry when online',
+        recommendations: ['Check internet connection', 'Verify API URL'],
+        analysis_metadata: {
+          analysis_type: 'failed',
+          error: error instanceof Error ? error.message : 'Unknown error',
           timestamp: new Date().toISOString(),
         },
         created_at: new Date().toISOString(),
@@ -108,68 +130,13 @@ export class HybridService {
 
       return {
         id,
-        disease: prediction.disease,
-        confidence: prediction.confidence,
-        severity: prediction.severity,
-        treatment: prediction.treatment,
-        recommendations: prediction.recommendations,
+        disease: 'Analysis Failed',
+        confidence: 0,
+        severity: 'unknown',
+        treatment: 'Retry when online',
+        recommendations: ['Check internet connection', 'Verify API URL'],
         isOffline: true,
       };
-    } catch (error) {
-      console.error('Error with local model analysis:', error);
-      throw error;
-    }
-  }
-
-  private async analyzeWithOnlineAPI(request: AnalysisRequest): Promise<AnalysisResult> {
-    try {
-      console.log('Analyzing with online API...');
-      
-      // Upload image to Supabase
-      const imageUrl = await SupabaseService.uploadImage(request.imageUri, request.userId);
-      
-      // Here you would call your online AI API
-      // For now, we'll simulate the response
-      const mockResult = {
-        disease: 'Cassava Mosaic Disease',
-        confidence: 0.92,
-        severity: 'moderate',
-        treatment: 'Use resistant plants, eliminate infected plants',
-        recommendations: [
-          'Isolate infected plants',
-          'Apply preventive treatment',
-          'Monitor regularly'
-        ]
-      };
-
-      // Save to Supabase
-      const analysisData = {
-        image_url: imageUrl,
-        disease_detected: mockResult.disease,
-        confidence_score: mockResult.confidence,
-        severity_level: mockResult.severity,
-        treatment_recommendation: mockResult.treatment,
-        recommendations: mockResult.recommendations,
-        analysis_metadata: {
-          analysis_type: 'online',
-          timestamp: new Date().toISOString(),
-        },
-      };
-
-      const savedAnalysis = await SupabaseService.saveAnalysis(analysisData);
-
-      return {
-        id: savedAnalysis.id!,
-        disease: mockResult.disease,
-        confidence: mockResult.confidence,
-        severity: mockResult.severity,
-        treatment: mockResult.treatment,
-        recommendations: mockResult.recommendations,
-        isOffline: false,
-      };
-    } catch (error) {
-      console.error('Error with online API analysis:', error);
-      throw error;
     }
   }
 
@@ -245,7 +212,7 @@ export class HybridService {
     }, 5 * 60 * 1000); // 5 minutes
   }
 
-  async forcSync(): Promise<void> {
+  async forceSync(): Promise<void> {
     try {
       const isOnline = await this.isOnline();
       if (isOnline) {
@@ -264,13 +231,18 @@ export class HybridService {
     isOnline: boolean;
     pendingSync: number;
     lastSync?: Date;
+    apiStatus: 'online' | 'offline';
   }> {
     const isOnline = await this.isOnline();
     const pendingSync = await offlineService.getPendingSyncCount();
     
+    // Check FastAPI status
+    const apiHealth = await apiService.getHealthStatus();
+    
     return {
       isOnline,
       pendingSync,
+      apiStatus: apiHealth.status,
       // You could store last sync time in AsyncStorage
     };
   }
