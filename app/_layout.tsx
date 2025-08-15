@@ -13,6 +13,7 @@ import { supabaseConfigService } from '@/components/SupabaseConfigService';
 
 export default function RootLayout() {
   useFrameworkReady();
+  const [servicesInitialized, setServicesInitialized] = useState(false);
   
   // Initialize hybrid service
   React.useEffect(() => {
@@ -29,13 +30,25 @@ export default function RootLayout() {
         // Initialize Supabase configuration service
         await supabaseConfigService.initialize();
         console.log('Supabase config service initialized');
+        
+        setServicesInitialized(true);
       } catch (error) {
         console.error('Failed to initialize hybrid service:', error);
+        setServicesInitialized(true); // Allow app to continue even if initialization fails
       }
     };
     
     initializeServices();
   }, []);
+
+  if (!servicesInitialized) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#2D5016" />
+        <Text style={{ marginTop: 16, color: '#666666' }}>Initializing services...</Text>
+      </View>
+    );
+  }
 
   return (
     <AuthProvider>
